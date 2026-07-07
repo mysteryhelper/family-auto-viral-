@@ -1,0 +1,39 @@
+name: Daily Viral Scan
+
+on:
+  schedule:
+    # Har roz raat 9:00 PM UTC (India time 2:30 AM) pe run hoga
+    - cron: '0 21 * * *'
+  workflow_dispatch:  # Manual trigger ke liye bhi
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install ffmpeg -y
+      
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run viral score script
+        run: python main.py
+      
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: viral-clips-report
+          path: daily_viral_scores/
